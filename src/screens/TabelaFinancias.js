@@ -153,7 +153,7 @@ export default function TabelaFinancias(){
         showNotification({message: "Alterações salvas!", color: 'green', autoClose: true})
     }
 
-    const getFinancialData = () => {
+    const getFinancialData = (rows) => {
         const balance = rows.filter(i => i.tipo === "Ganhos")
         .reduce((pv, v) => pv + parseFloat(v.valor), 0)
 
@@ -183,15 +183,12 @@ export default function TabelaFinancias(){
         ? rowsFilteredByType.filter((i) => i.categoria === selectValueCategory)
         : rowsFilteredByType;
 
+        getFinancialData(rowsFilteredByCategory)
+
         setRowsFiltered([
             ...rowsFilteredByCategory.sort((a,b) => a.data < b.data ? 1 : -1)
         ])
     }
-
-    React.useEffect(() => {
-        getFinancialData()
-        // eslint-disable-next-line
-    }, [rows])
 
     React.useEffect(() => {
         getRowsFiltered()
@@ -201,7 +198,7 @@ export default function TabelaFinancias(){
     return <section className={styles.container} id="tabela-financias">
 
         <Grid style={{marginTop:'3vh'}} container spacing={2}>
-            <Grid item xs={4}>
+            <Grid item md={4} xs={12}>
                 <ReportsDashPaper 
                     title={"Saldo"} 
                     background={"#64b084"} 
@@ -209,7 +206,7 @@ export default function TabelaFinancias(){
                     bodySubtitle={"Total do saldo"} 
                 />
             </Grid>
-            <Grid item xs={4}>
+            <Grid item md={4} xs={12}>
                 <ReportsDashPaper 
                     title={"Gastos"} 
                     background={"#eb5757"} 
@@ -217,7 +214,7 @@ export default function TabelaFinancias(){
                     bodySubtitle={"Total dos gastos"} 
                 />
             </Grid>
-            <Grid item xs={4}>
+            <Grid item md={4} xs={12}>
                 <ReportsDashPaper 
                     title={"Somatória"} 
                     background={"#057dc1"}
@@ -228,7 +225,7 @@ export default function TabelaFinancias(){
             <Grid item xs={12}>
                 <div className={styles.whiteBox}>
                     <Grid style={{marginTop:'1vh'}} container spacing={2}>
-                        <Grid item xs={4}>
+                        <Grid item md={4} xs={12}>
                             <TextField
                                 fullWidth
                                 type="text"
@@ -241,7 +238,7 @@ export default function TabelaFinancias(){
                             />
                         </Grid>
 
-                        <Grid item xs={3}>
+                        <Grid item md={3} xs={12}>
                             <FormControl
                                 fullWidth
                                 variant="outlined"
@@ -264,7 +261,7 @@ export default function TabelaFinancias(){
                             </FormControl>
                         </Grid>
 
-                        <Grid item xs={3}>
+                        <Grid item md={3} xs={12}>
                             <FormControl
                                 fullWidth
                                 variant="outlined"
@@ -291,7 +288,7 @@ export default function TabelaFinancias(){
                             </FormControl>
                         </Grid>
 
-                        <Grid item xs={2}>
+                        <Grid item md={2} xs={12}>
                             <Button
                                 fullWidth
                                 variant="contained" 
@@ -391,11 +388,9 @@ export default function TabelaFinancias(){
         <Dialog
             open={open}
             onClose={handleClose}
-            aria-labelledby="alert-dialog-title"
-            aria-describedby="alert-dialog-description"
         >
-            <DialogTitle id="alert-dialog-title">
-            {edit ? "Editar transação" : "Cadastro de transação"}
+            <DialogTitle>
+                {edit ? "Editar transação" : "Cadastro de transação"}
             </DialogTitle>
             <DialogContent>
 
