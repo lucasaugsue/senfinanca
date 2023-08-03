@@ -1,15 +1,45 @@
 import { showNotification } from '@mantine/notifications';
 import { Delete, Edit } from '@mui/icons-material';
 import AddIcon from '@mui/icons-material/Add';
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, Grid, IconButton, MenuItem, Select, TableBody, TableCell, TableHead, TableRow, TextField, Tooltip } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl, Grid, IconButton, InputLabel, MenuItem, Select, TableBody, TableCell, TableContainer, TableFooter, TableHead, TablePagination, TableRow, TextField, Tooltip, tableCellClasses } from '@mui/material';
+import Paper from '@mui/material/Paper';
 import Table from '@mui/material/Table';
+import { styled } from '@mui/material/styles';
 import moment from 'moment';
+import PropTypes from 'prop-types';
 import React from 'react';
 import { ReportsDashPaper } from '../components/ReportsDashPaper';
+import TablePaginationActions from "../components/TablePaginationActionsComponent";
 import FiancaContext from "../context/FiancaContext";
 import { formatCurrency } from '../util/Util';
 import styles from './TabelaFinancias.module.css';
 
+const StyledTableCell = styled(TableCell)(({ theme }) => ({
+    [`&.${tableCellClasses.head}`]: {
+      backgroundColor: theme.palette.common.black,
+      color: theme.palette.common.white,
+    },
+    [`&.${tableCellClasses.body}`]: {
+      fontSize: 14,
+    },
+}));
+
+const StyledTableRow = styled(TableRow)(({ theme }) => ({
+    '&:nth-of-type(odd)': {
+      backgroundColor: theme.palette.action.hover,
+    },
+    // hide last border
+    '&:last-child td, &:last-child th': {
+      border: 0,
+    },
+}));
+
+TablePaginationActions.propTypes = {
+    count: PropTypes.number.isRequired,
+    onPageChange: PropTypes.func.isRequired,
+    page: PropTypes.number.isRequired,
+    rowsPerPage: PropTypes.number.isRequired,
+};
 
 export default function TabelaFinancias(){
     const { currentFianca, changeList } = React.useContext(FiancaContext);
@@ -19,15 +49,46 @@ export default function TabelaFinancias(){
     const [edit, setEdit] = React.useState(false);
     
     const [text, setText] = React.useState("")
-    const [selectValue, setSelectValue] = React.useState("Todos")
+    const [selectValueType, setSelectValueType] = React.useState("Todos")
+    const [selectValueCategory, setSelectValueCategory] = React.useState("Todos")
+
     const [rows, setRows] = React.useState(currentFianca ? [...currentFianca] : []);
     const [rowsFiltered, setRowsFiltered] = React.useState([]);
+
+    //início relacionado ao passar página
+    const [page, setPage] = React.useState(0);
+    const [rowsPerPage, setRowsPerPage] = React.useState(5);
+
+    // Avoid a layout jump when reaching the last page with empty rows.
+    const emptyRows =
+        page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rowsFiltered.length) : 0;
+
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
+    };
+
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+    };
+    //fim relacionado ao passar página
+
     
     const [financialData, setFinancialData] = React.useState({
         balance: 0,
         spending: 0,
         sum: 0
     })
+
+    const listCategory = [
+        {id: 1, nome: "Todos"},
+        {id: 2, nome: "Lazer"},
+        {id: 3, nome: "Transporte"},
+        {id: 4, nome: "Educação"},
+        {id: 5, nome: "Comida"},
+        {id: 6, nome: "Trabalho"},
+        {id: 7, nome: "Outros"},
+    ]
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -53,7 +114,7 @@ export default function TabelaFinancias(){
     
             let tmp = [...rows, {
                 ...data, 
-                data: moment().format("YYYY-MM-DD HH:MM:ss")
+                data: moment().format("YYYY-MM-DD HH:mm:ss")
             }]
 
             setRows([...tmp])
@@ -113,24 +174,33 @@ export default function TabelaFinancias(){
         : rows;
 
         //filtro por tipo
-        var rowsFilteredByType = selectValue !== "Todos"
-        ? rowsFilteredByTitle.filter((i) => i.tipo === selectValue)
+        var rowsFilteredByType = selectValueType !== "Todos"
+        ? rowsFilteredByTitle.filter((i) => i.tipo === selectValueType)
         : rowsFilteredByTitle;
 
-        setRowsFiltered([...rowsFilteredByType])
+        //filtro por categoria
+        var rowsFilteredByCategory = selectValueCategory !== "Todos"
+        ? rowsFilteredByType.filter((i) => i.categoria === selectValueCategory)
+        : rowsFilteredByType;
+
+        setRowsFiltered([
+            ...rowsFilteredByCategory.sort((a,b) => a.data < b.data ? 1 : -1)
+        ])
     }
 
     React.useEffect(() => {
         getFinancialData()
+        // eslint-disable-next-line
     }, [rows])
 
     React.useEffect(() => {
         getRowsFiltered()
-    }, [selectValue, text])
+        // eslint-disable-next-line
+    }, [rows, selectValueType, selectValueCategory, text])
     
     return <section className={styles.container} id="tabela-financias">
 
-        <Grid style={{marginTop:'4vh'}} container spacing={2}>
+        <Grid style={{marginTop:'3vh'}} container spacing={2}>
             <Grid item xs={4}>
                 <ReportsDashPaper 
                     title={"Saldo"} 
@@ -155,11 +225,10 @@ export default function TabelaFinancias(){
                     bodySubtitle={"Total do saldo e gasto"} 
                 />
             </Grid>
-
             <Grid item xs={12}>
                 <div className={styles.whiteBox}>
                     <Grid style={{marginTop:'1vh'}} container spacing={2}>
-                        <Grid item xs={7}>
+                        <Grid item xs={4}>
                             <TextField
                                 fullWidth
                                 type="text"
@@ -167,6 +236,7 @@ export default function TabelaFinancias(){
                                 name="titulo"
                                 variant="outlined"
                                 label="Busca por título"
+                                defaultValue=""
                                 onChange={(e) => setText(e.target.value)}
                             />
                         </Grid>
@@ -176,11 +246,36 @@ export default function TabelaFinancias(){
                                 fullWidth
                                 variant="outlined"
                             >
+                                <InputLabel>Categoria</InputLabel>
                                 <Select
                                     fullWidth
+                                    label="Categoria"
                                     defaultValue="Todos"
-                                    value={selectValue}
-                                    onChange={(e) => setSelectValue(e.target.value)}
+                                    value={selectValueCategory}
+                                    onChange={(e) => setSelectValueCategory(e.target.value)}
+                                >
+                                    {listCategory.map((item, index) => 
+                                        <MenuItem 
+                                            key={`${item.id};;${index}`}
+                                            value={item.nome}
+                                        > {item.nome} </MenuItem> 
+                                    )}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+
+                        <Grid item xs={3}>
+                            <FormControl
+                                fullWidth
+                                variant="outlined"
+                            >
+                                <InputLabel>Tipo</InputLabel>
+                                <Select
+                                    fullWidth
+                                    label="Tipo"
+                                    defaultValue="Todos"
+                                    value={selectValueType}
+                                    onChange={(e) => setSelectValueType(e.target.value)}
                                 >
                                     {[
                                         {id: 1, nome: "Todos"},
@@ -201,10 +296,8 @@ export default function TabelaFinancias(){
                                 fullWidth
                                 variant="contained" 
                                 startIcon={<AddIcon />}
-                                className={styles.TransactionRegistration}
-                                // style={{padding: "1.5vh"}}
+                                className={styles.buttontr}
                                 onClick={() => {
-                                    setData({...data, tipo: "Despesas"})
                                     handleClickOpen()
                                 }} 
                             >
@@ -213,59 +306,87 @@ export default function TabelaFinancias(){
                         </Grid>
                     </Grid>
 
-                    <Table style={{marginTop:'2vh'}}>
-                        <TableHead>
-                        <TableRow>
-                            <TableCell>Título</TableCell>
-                            <TableCell align="center">Tipo</TableCell>
-                            <TableCell align="center">Categoria</TableCell>
-                            <TableCell align="center">Valor</TableCell>
-                            <TableCell align="center">Data</TableCell>
-                            <TableCell align="center">Editar</TableCell>
-                            <TableCell align="center">Deletar</TableCell>
-                        </TableRow>
-                        </TableHead>
-                        <TableBody>
-                            {rowsFiltered
-                            .map((row) => (
-                                <TableRow
-                                key={row.titulo}
-                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                                >
-                                <TableCell component="th" scope="row">
-                                    {row.titulo}
-                                </TableCell>
-                                <TableCell align="center">{row.tipo}</TableCell>
-                                <TableCell align="center">{row.categoria}</TableCell>
-                                <TableCell align="center">{row.valor}</TableCell>
-                                <TableCell align="center">{row.data}</TableCell>
-                                <TableCell align="center">
-                                    <Tooltip title="Editar">
-                                        <IconButton onClick={() => {
-                                                setEdit(true) 
-                                                setData({...row})
-                                                handleClickOpen()
-                                            }}
-                                        >
-                                            <Edit fontSize="medium" />
-                                        </IconButton>
-                                    </Tooltip>
-                                </TableCell>
-                                <TableCell align="center">
-                                    <Tooltip title="Deletar">
-                                        <IconButton onClick={() => handleTransactionDelete(row)}>
-                                            <Delete fontSize="medium" />
-                                        </IconButton>
-                                    </Tooltip>
-                                </TableCell>
+
+                    <TableContainer style={{margin: "3vh", minHeight: '50vh'}} component={Paper}>
+                        <Table style={{width: "100%"}} aria-label="custom pagination table">
+                            <TableHead>
+                                <TableRow>
+                                    <StyledTableCell>Título</StyledTableCell>
+                                    <StyledTableCell align="center">Tipo</StyledTableCell>
+                                    <StyledTableCell align="center">Categoria</StyledTableCell>
+                                    <StyledTableCell align="center">Valor</StyledTableCell>
+                                    <StyledTableCell align="center">Data</StyledTableCell>
+                                    <StyledTableCell align="center">Editar</StyledTableCell>
+                                    <StyledTableCell align="center">Deletar</StyledTableCell>
                                 </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
+                            </TableHead>
+                            <TableBody>
+                                {
+                                    (rowsPerPage > 0
+                                        ? rowsFiltered.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                        : rowsFiltered
+                                    ).map((row) => (
+                                    <StyledTableRow
+                                        key={row.titulo}
+                                        sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                                    >
+                                    <StyledTableCell component="th" scope="row"> {row.titulo} </StyledTableCell>
+                                    <StyledTableCell align="center">{row.tipo}</StyledTableCell>
+                                    <StyledTableCell align="center">{row.categoria}</StyledTableCell>
+                                    <StyledTableCell align="center">{formatCurrency(row.valor)}</StyledTableCell>
+                                    <StyledTableCell align="center">{row.data}</StyledTableCell>
+                                    <StyledTableCell align="center">
+                                        <Tooltip title="Editar">
+                                            <IconButton onClick={() => {
+                                                    setEdit(true) 
+                                                    setData({...row})
+                                                    handleClickOpen()
+                                                }}
+                                            >
+                                                <Edit fontSize="medium" />
+                                            </IconButton>
+                                        </Tooltip>
+                                    </StyledTableCell>
+                                    <StyledTableCell align="center">
+                                        <Tooltip title="Deletar">
+                                            <IconButton onClick={() => handleTransactionDelete(row)}>
+                                                <Delete fontSize="medium" />
+                                            </IconButton>
+                                        </Tooltip>
+                                    </StyledTableCell>
+                                    </StyledTableRow>
+                                ))}
+                                {emptyRows > 0 && (
+                                    <StyledTableRow style={{ height: 73 * emptyRows }}>
+                                        <StyledTableCell colSpan={6} />
+                                    </StyledTableRow>
+                                )}
+                            </TableBody>
+                            <TableFooter>
+                                <TableRow>
+                                    <TablePagination
+                                        rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+                                        colSpan={7}
+                                        count={rowsFiltered.length}
+                                        rowsPerPage={rowsPerPage}
+                                        page={page}
+                                        SelectProps={{
+                                            inputProps: {
+                                            'aria-label': 'rows per page',
+                                            },
+                                            native: true,
+                                        }}
+                                        onPageChange={handleChangePage}
+                                        onRowsPerPageChange={handleChangeRowsPerPage}
+                                        ActionsComponent={TablePaginationActions}
+                                    />
+                                </TableRow>
+                            </TableFooter>
+                        </Table>
+                    </TableContainer>
                 </div>
             </Grid>
         </Grid>
-        
 
         <Dialog
             open={open}
@@ -291,19 +412,30 @@ export default function TabelaFinancias(){
                         />
                     </Grid>
                     <Grid item xs={6}>
+                        <TextField
+                            fullWidth
+                            type="number"
+                            name="valor"
+                            variant="outlined"
+                            label="Valor"
+                            value={{...data}.valor}
+                            onChange={(e) => handleChange(e)}
+                        />
+                    </Grid>
+                    <Grid item xs={6}>
 
                         <FormControl
                             fullWidth
                             variant="outlined"
                         >
+                            <InputLabel>Tipo</InputLabel>
                             <Select
                                 fullWidth
-                                defaultValue="Despesas"
+                                defaultValue=""
+                                name="tipo"
+                                label="Tipo"
                                 value={{...data}.tipo}
-                                onChange={(e) => setData({
-                                    ...data,
-                                    tipo: e.target.value
-                                })}
+                                onChange={(e) => handleChange(e)}
                             >
                                 {[
                                     {id: 1, nome: "Ganhos"},
@@ -318,26 +450,28 @@ export default function TabelaFinancias(){
                         </FormControl>
                     </Grid>
                     <Grid item xs={6}>
-                        <TextField
+                        <FormControl
                             fullWidth
-                            type="text"
-                            name="categoria"
                             variant="outlined"
-                            label="Categoria"
-                            value={{...data}.categoria}
-                            onChange={(e) => handleChange(e)}
-                        />
-                    </Grid>
-                    <Grid item xs={6}>
-                        <TextField
-                            fullWidth
-                            type="number"
-                            name="valor"
-                            variant="outlined"
-                            label="Valor"
-                            value={{...data}.valor}
-                            onChange={(e) => handleChange(e)}
-                        />
+                        >
+                            <InputLabel>Categoria</InputLabel>
+                            <Select
+                                fullWidth
+                                defaultValue=""
+                                name="categoria"
+                                label="Categoria"
+                                value={{...data}.categoria}
+                                onChange={(e) => handleChange(e)}
+                            >
+                                {listCategory.filter(i => i.nome !== "Todos")
+                                .map((item, index) => 
+                                    <MenuItem 
+                                        key={`${item.id};;${index}`}
+                                        value={item.nome}
+                                    > {item.nome} </MenuItem> 
+                                )}
+                            </Select>
+                        </FormControl>
                     </Grid>
                 </Grid>
 

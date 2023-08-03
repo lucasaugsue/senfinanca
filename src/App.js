@@ -1,4 +1,4 @@
-// import { NotificationsProvider } from "@mantine/core";
+import { Notifications } from '@mantine/notifications';
 import React from 'react';
 import FiancaContext from '../src/context/FiancaContext';
 import './App.css';
@@ -18,11 +18,10 @@ function App() {
   }), [currentFianca])
 
   return (
-    // <NotificationsProvider>
-      <FiancaContext.Provider value={fiancaContext}>
-        <Render />
-      </FiancaContext.Provider>
-    // </NotificationsProvider>
+    <FiancaContext.Provider value={fiancaContext}>
+      <Render />
+      <Notifications />
+    </FiancaContext.Provider>
   );
 }
 

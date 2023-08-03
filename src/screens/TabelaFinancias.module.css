@@ -24,17 +24,16 @@ section.container {
     background-color: rgba(255, 255, 255, 0.65);
 }
 
-.TransactionRegistration {
+.buttontr {
     padding: 1.5vh;
 }
 
+
 /* If the screen size is 1600px wide or less, set the font-size of <div> to 30px */
 @media screen and (max-width: 1600px) {
-
-    .TransactionRegistration {
+    .buttontr {
         padding: 0.4vh;
     }
-    
 }
 
 /* If the screen size is 900px wide or less, set the font-size of <div> to 30px */
@@ -53,8 +52,7 @@ section.container {
         align-items: center;
     }
 
-    .TransactionRegistration {
+    .buttontr {
         padding: 0.5vh;
     }
-    
 }
