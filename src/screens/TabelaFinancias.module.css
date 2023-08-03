@@ -1,0 +1,56 @@
+section.container {
+    z-index: 10;
+    width: auto;
+    height: auto;
+    box-shadow: unset;
+    position: relative;
+    padding: 8vh 4vw 8vh 4vw;
+    background-image: linear-gradient(135deg, #373945, #bea181);
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.whiteBox {
+    margin-top: 10vh;
+    flex-direction: column;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    border-radius: 60px;
+    background-color: rgba(255, 255, 255, 0.65);
+}
+
+.imagem {
+    width: 25vh;
+    height: 25vh;
+    border-radius: 50%;
+    border-style: solid;
+    margin: 9vh 5vw 3vh 5vw;
+    border-color: #ac9079c0;
+    /* background-image: url(/porquinho.jpeg); */
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+    background-attachment: scroll;
+}
+
+/* If the screen size is 900px wide or less, set the font-size of <div> to 30px */
+@media screen and (max-width: 900px) {
+    section.container {
+        z-index: 10;
+        width: auto;
+        height: auto;
+        box-shadow: unset;
+        position: relative;
+        padding: 8vh 5vw 8vh 5vw;
+        background-image: linear-gradient(0deg, #ac9079c0, #d8b79ac2);
+    
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+}

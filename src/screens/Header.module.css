@@ -1,0 +1,66 @@
+@import url('https://fonts.googleapis.com/css2?family=Amatic+SC:wght@700&family=Antonio:wght@300&display=swap');
+
+.basicHeader{
+    box-shadow: unset;
+    width: 100vw;
+    z-index: 11;
+    position: fixed;
+    min-height: 9vh;
+    transition: 0.8s all;
+    background-color: #d69e7d;
+}
+
+.basicHeaderTransparent{
+    width: 100vw;
+    z-index: 11;
+    position: fixed;
+    min-height: 9vh;
+    transition: 0.8s all;
+    background-color: #c28a3b9d;
+}
+
+.gridContainerLogo {
+    display: grid;
+    flex-direction: row;
+    align-items: center;
+    grid-template-columns: auto auto auto;
+}
+
+.itemLogo {
+    padding: 2vh 6vh 2vh 6vh;
+    text-align: left;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-items: center;
+}
+
+
+.logo {
+    padding: 0vh 0.5vh 0vh 0.5vh;
+    font-size: 6vh;
+    font-weight: 500;
+    color: white;
+}
+
+.itemIcon {
+    padding: 2vh 6vh 2vh 6vh;
+    justify-self: flex-end;
+}
+
+.icon {
+    color: #ffffff;
+    font-size: 3.5vh;
+}
+
+.list {
+    width: 100vw;
+    color: #ffffff;
+    font-size: 3.5vh;
+}
+
+.collapse {
+    border-style: outset;
+    border-color: #4928062a;
+    background-color: #dbdad918;
+}

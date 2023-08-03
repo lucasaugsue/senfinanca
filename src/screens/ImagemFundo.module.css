@@ -1,0 +1,117 @@
+.container {
+    min-height: 100vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 10;
+}
+
+.divText {
+    top: 0;
+    position: fixed; 
+}
+
+.containerRotateScroling {
+    margin: auto;
+    position: relative;
+    transform-origin: bottom left;
+    transform: rotate(-85deg);
+    height: 55vh;
+    width: 100%;
+  }
+  
+  .containerRotateScroling div {
+    display: inline-block;
+    font-size: 10vh;
+    transition: 1.1s all;
+    color: rgba(255, 255, 255, 0);
+    -webkit-text-stroke: 0.8px #33325a00;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform-origin: bottom center;
+    text-align: center;
+}
+
+.containerRotate {
+    margin: auto;
+    position: relative;
+    transform-origin: bottom left;
+    transform: rotate(-85deg);
+    height: 55vh;
+    width: 100%;
+  }
+  
+  .containerRotate div {
+    display: inline-block;
+    font-size: 10vh;
+    transition: 1.1s all;
+    color: #c9baa2;
+    -webkit-text-stroke: 0.8px #5c5c5c;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform-origin: bottom center;
+    text-align: center;
+}
+
+.text {
+    text-align: center;
+    padding: 8vh 10vw 10vh 15vw;
+}
+
+.image {
+    position: absolute; 
+    z-index: -99;
+    padding: 0; 
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-image: linear-gradient(0deg, #ac9079c0, #d8b79ac2);
+    /* background-image: url(../public/porquinho.jpeg); */
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-position: center center;
+    background-attachment: scroll;
+}
+
+/* If the screen size is 900px wide or less, set the font-size of <div> to 30px */
+@media screen and (max-width: 900px) {
+    .containerRotate {
+        margin: auto;
+        position: relative;
+        transform-origin: bottom left;
+        transform: rotate(-90deg);
+        height: 26vh;
+        width: 100%;
+      }
+      
+      .containerRotate div {
+        display: inline-block;
+        font-size: 5vh;
+        transition: 0.9s all;
+        /* font: 900 1.5em Monaco, Monospace; */
+        color: rgb(255, 255, 255);
+        -webkit-text-stroke: 0.3px #33325a;
+        height: 100%;
+        width: 100%;
+        position: absolute;
+        left: 0;
+        top: 0;
+        transform-origin: bottom center;
+        text-align: center;
+    }
+    
+    .text {
+        text-align: center;
+        padding: 25vh 5vw 5vh 12vw;
+    }
+}
