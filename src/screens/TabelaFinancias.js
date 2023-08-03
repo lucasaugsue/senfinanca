@@ -5,9 +5,10 @@ import { Button, Dialog, DialogActions, DialogContent, DialogTitle, FormControl,
 import Table from '@mui/material/Table';
 import moment from 'moment';
 import React from 'react';
-import FiancaContext from "../context/FiancaContext";
-import styles from './TabelaFinancias.module.css';
 import { ReportsDashPaper } from '../components/ReportsDashPaper';
+import FiancaContext from "../context/FiancaContext";
+import { formatCurrency } from '../util/Util';
+import styles from './TabelaFinancias.module.css';
 
 
 export default function TabelaFinancias(){
@@ -18,44 +19,15 @@ export default function TabelaFinancias(){
     const [edit, setEdit] = React.useState(false);
     
     const [text, setText] = React.useState("")
+    const [selectValue, setSelectValue] = React.useState("Todos")
     const [rows, setRows] = React.useState(currentFianca ? [...currentFianca] : []);
-
-    //filtro por título
-    var rowsFilteredByTitle = text.length > 1
-    ? rows.filter((i) =>
-        i.titulo.toLowerCase().includes(text.toLowerCase())
-      )
-    : rows;
-
-    // let totalConsumation = wr.user_consummations.reduce((pv, v) => pv + v.amount, 0);
-
-    // let balance = rows.reduce((pv, v) => {
-    //     pv = 0
-    //     if(pv.tipo === "Ganhos") pv + parseInt(v.valor)
-    //     return pv
-    // }, 0)
-
-    // console.log("balance", balance)
-
-    // var financialData = rows.reduce((curr, obj) => {
-    //     let balance = 0
-    //     let spending = 0
-    //     let sum = 0
-
-    //     if(curr.tipo === "Ganhos") balance = balance + curr.valor
-    //     else spending
-
-    //     return obj
-    // }, {
-    //     balance: 0,
-    //     spending: 0,
-    //     sum: 0
-    // })
-
-    const tipos = [
-        {id: 1, nome: "Ganhos"},
-        {id: 2, nome: "Despesas"}
-    ]
+    const [rowsFiltered, setRowsFiltered] = React.useState([]);
+    
+    const [financialData, setFinancialData] = React.useState({
+        balance: 0,
+        spending: 0,
+        sum: 0
+    })
 
     const handleClickOpen = () => {
         setOpen(true);
@@ -63,6 +35,7 @@ export default function TabelaFinancias(){
 
     const handleClose = () => {
         setData({})
+        setEdit(false)
         setOpen(false);
     };
 
@@ -118,58 +91,118 @@ export default function TabelaFinancias(){
         handleClose()
         showNotification({message: "Alterações salvas!", color: 'green', autoClose: true})
     }
+
+    const getFinancialData = () => {
+        const balance = rows.filter(i => i.tipo === "Ganhos")
+        .reduce((pv, v) => pv + parseFloat(v.valor), 0)
+
+        const spending = rows.filter(i => i.tipo === "Despesas")
+        .reduce((pv, v) => pv + parseFloat(v.valor), 0)
+
+        const sum = balance - spending
+
+        setFinancialData({balance, spending, sum})
+    }
+
+    const getRowsFiltered = () => {
+        //filtro por título
+        var rowsFilteredByTitle = text.length > 1
+        ? rows.filter((i) =>
+            i.titulo.toLowerCase().includes(text.toLowerCase())
+        )
+        : rows;
+
+        //filtro por tipo
+        var rowsFilteredByType = selectValue !== "Todos"
+        ? rowsFilteredByTitle.filter((i) => i.tipo === selectValue)
+        : rowsFilteredByTitle;
+
+        setRowsFiltered([...rowsFilteredByType])
+    }
+
+    React.useEffect(() => {
+        getFinancialData()
+    }, [rows])
+
+    React.useEffect(() => {
+        getRowsFiltered()
+    }, [selectValue, text])
     
     return <section className={styles.container} id="tabela-financias">
 
         <Grid style={{marginTop:'4vh'}} container spacing={2}>
             <Grid item xs={4}>
                 <ReportsDashPaper 
-                    noButton={true}
                     title={"Saldo"} 
                     background={"#64b084"} 
-                    bodySubtitle={"Total do saldo"}
-                    onClickFunction={() => {console.log("ainda a definir 1")}}
+                    bodyTitle={formatCurrency(financialData.balance)}
+                    bodySubtitle={"Total do saldo"} 
                 />
             </Grid>
             <Grid item xs={4}>
                 <ReportsDashPaper 
-                    noButton={true}
                     title={"Gastos"} 
                     background={"#eb5757"} 
-                    bodySubtitle={"Total dos gastos"}
-                    onClickFunction={() => {console.log("ainda a definir 2")}}
+                    bodyTitle={formatCurrency(financialData.spending)}
+                    bodySubtitle={"Total dos gastos"} 
                 />
             </Grid>
             <Grid item xs={4}>
                 <ReportsDashPaper 
-                    noButton={true}
                     title={"Somatória"} 
-                    background={"#057dc1"} 
-                    bodySubtitle={"Total do saldo e gasto"}
-                    onClickFunction={() => {console.log("ainda a definir 3")}}
+                    background={"#057dc1"}
+                    bodyTitle={formatCurrency(financialData.sum)}
+                    bodySubtitle={"Total do saldo e gasto"} 
                 />
             </Grid>
 
             <Grid item xs={12}>
                 <div className={styles.whiteBox}>
                     <Grid style={{marginTop:'1vh'}} container spacing={2}>
-                        <Grid item xs={8}>
+                        <Grid item xs={7}>
                             <TextField
                                 fullWidth
                                 type="text"
                                 value={text}
                                 name="titulo"
                                 variant="outlined"
-                                label="Busca de título"
+                                label="Busca por título"
                                 onChange={(e) => setText(e.target.value)}
                             />
                         </Grid>
 
-                        <Grid item xs={4}>
+                        <Grid item xs={3}>
+                            <FormControl
+                                fullWidth
+                                variant="outlined"
+                            >
+                                <Select
+                                    fullWidth
+                                    defaultValue="Todos"
+                                    value={selectValue}
+                                    onChange={(e) => setSelectValue(e.target.value)}
+                                >
+                                    {[
+                                        {id: 1, nome: "Todos"},
+                                        {id: 2, nome: "Ganhos"},
+                                        {id: 3, nome: "Despesas"}
+                                    ].map((item, index) => 
+                                        <MenuItem 
+                                            key={`${item.id};;${index}`}
+                                            value={item.nome}
+                                        > {item.nome} </MenuItem> 
+                                    )}
+                                </Select>
+                            </FormControl>
+                        </Grid>
+
+                        <Grid item xs={2}>
                             <Button
                                 fullWidth
                                 variant="contained" 
                                 startIcon={<AddIcon />}
+                                className={styles.TransactionRegistration}
+                                // style={{padding: "1.5vh"}}
                                 onClick={() => {
                                     setData({...data, tipo: "Despesas"})
                                     handleClickOpen()
@@ -180,7 +213,7 @@ export default function TabelaFinancias(){
                         </Grid>
                     </Grid>
 
-                    <Table>
+                    <Table style={{marginTop:'2vh'}}>
                         <TableHead>
                         <TableRow>
                             <TableCell>Título</TableCell>
@@ -193,7 +226,7 @@ export default function TabelaFinancias(){
                         </TableRow>
                         </TableHead>
                         <TableBody>
-                            {rowsFilteredByTitle
+                            {rowsFiltered
                             .map((row) => (
                                 <TableRow
                                 key={row.titulo}
@@ -272,7 +305,10 @@ export default function TabelaFinancias(){
                                     tipo: e.target.value
                                 })}
                             >
-                                {tipos.map((item, index) => 
+                                {[
+                                    {id: 1, nome: "Ganhos"},
+                                    {id: 2, nome: "Despesas"}
+                                ].map((item, index) => 
                                     <MenuItem 
                                         key={`${item.id};;${index}`}
                                         value={item.nome}

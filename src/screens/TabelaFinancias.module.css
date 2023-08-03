@@ -14,6 +14,7 @@ section.container {
 
 .whiteBox {
     margin-top: 10vh;
+    padding: 2vh 2vw;
     flex-direction: column;
     display: flex;
     justify-content: center;
@@ -23,18 +24,17 @@ section.container {
     background-color: rgba(255, 255, 255, 0.65);
 }
 
-.imagem {
-    width: 25vh;
-    height: 25vh;
-    border-radius: 50%;
-    border-style: solid;
-    margin: 9vh 5vw 3vh 5vw;
-    border-color: #ac9079c0;
-    /* background-image: url(/porquinho.jpeg); */
-    background-repeat: no-repeat;
-    background-size: cover;
-    background-position: center center;
-    background-attachment: scroll;
+.TransactionRegistration {
+    padding: 1.5vh;
+}
+
+/* If the screen size is 1600px wide or less, set the font-size of <div> to 30px */
+@media screen and (max-width: 1600px) {
+
+    .TransactionRegistration {
+        padding: 0.4vh;
+    }
+    
 }
 
 /* If the screen size is 900px wide or less, set the font-size of <div> to 30px */
@@ -51,6 +51,10 @@ section.container {
         display: flex;
         justify-content: center;
         align-items: center;
+    }
+
+    .TransactionRegistration {
+        padding: 0.5vh;
     }
     
 }
