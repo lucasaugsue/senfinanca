@@ -105,7 +105,7 @@ export default function TabelaFinancias(){
         [e.target.name]: e.target.value
     }))
 
-    const handleTransactionRegistration = () => {
+    const handleTransactionRegistration = (data) => {
         try{
             if(!data.titulo) throw new Error("É necessário o titulo!")
             if(!data.tipo) throw new Error("É necessário o tipo!")
@@ -122,9 +122,11 @@ export default function TabelaFinancias(){
 
             handleClose()
             showNotification({message: "Transação registrada!", color: 'green', autoClose: true})
+            return 'Criado com sucesso!'
 
         }catch(err) {
             showNotification({message: err.message, color: 'red', autoClose: true})
+            return 'Erro!'
         }
 
     }
@@ -190,6 +192,12 @@ export default function TabelaFinancias(){
         ])
     }
 
+    const sum = (a, b) => {
+        return a + b
+    }
+
+    module.exports = { sum }
+
     React.useEffect(() => {
         getRowsFiltered()
         // eslint-disable-next-line
@@ -231,9 +239,8 @@ export default function TabelaFinancias(){
                                 type="text"
                                 value={text}
                                 name="titulo"
-                                variant="outlined"
+                                // variant="standard"
                                 label="Busca por título"
-                                defaultValue=""
                                 onChange={(e) => setText(e.target.value)}
                             />
                         </Grid>
@@ -241,13 +248,12 @@ export default function TabelaFinancias(){
                         <Grid item md={3} xs={12}>
                             <FormControl
                                 fullWidth
-                                variant="outlined"
+                                // variant="outlined"
                             >
                                 <InputLabel>Categoria</InputLabel>
                                 <Select
                                     fullWidth
                                     label="Categoria"
-                                    defaultValue="Todos"
                                     value={selectValueCategory}
                                     onChange={(e) => setSelectValueCategory(e.target.value)}
                                 >
@@ -264,13 +270,12 @@ export default function TabelaFinancias(){
                         <Grid item md={3} xs={12}>
                             <FormControl
                                 fullWidth
-                                variant="outlined"
+                                // variant="outlined"
                             >
                                 <InputLabel>Tipo</InputLabel>
                                 <Select
                                     fullWidth
                                     label="Tipo"
-                                    defaultValue="Todos"
                                     value={selectValueType}
                                     onChange={(e) => setSelectValueType(e.target.value)}
                                 >
@@ -400,9 +405,9 @@ export default function TabelaFinancias(){
                             fullWidth
                             type="text"
                             name="titulo"
-                            variant="outlined"
+                            // variant="outlined"
                             label="Título"
-                            value={{...data}.titulo}
+                            value={{...data}.titulo ? {...data}.titulo : ""}
                             onChange={(e) => handleChange(e)}
                         />
                     </Grid>
@@ -411,9 +416,9 @@ export default function TabelaFinancias(){
                             fullWidth
                             type="number"
                             name="valor"
-                            variant="outlined"
+                            // variant="outlined"
                             label="Valor"
-                            value={{...data}.valor}
+                            value={{...data}.valor ? {...data}.valor : ""}
                             onChange={(e) => handleChange(e)}
                         />
                     </Grid>
@@ -421,15 +426,14 @@ export default function TabelaFinancias(){
 
                         <FormControl
                             fullWidth
-                            variant="outlined"
+                            // variant="outlined"
                         >
                             <InputLabel>Tipo</InputLabel>
                             <Select
                                 fullWidth
-                                defaultValue=""
                                 name="tipo"
                                 label="Tipo"
-                                value={{...data}.tipo}
+                                value={{...data}.tipo ? {...data}.tipo : ""}
                                 onChange={(e) => handleChange(e)}
                             >
                                 {[
@@ -447,15 +451,14 @@ export default function TabelaFinancias(){
                     <Grid item xs={6}>
                         <FormControl
                             fullWidth
-                            variant="outlined"
+                            // variant="outlined"
                         >
                             <InputLabel>Categoria</InputLabel>
                             <Select
                                 fullWidth
-                                defaultValue=""
                                 name="categoria"
                                 label="Categoria"
-                                value={{...data}.categoria}
+                                value={{...data}.categoria ? {...data}.categoria : ""}
                                 onChange={(e) => handleChange(e)}
                             >
                                 {listCategory.filter(i => i.nome !== "Todos")
@@ -477,7 +480,7 @@ export default function TabelaFinancias(){
             <Button autoFocus onClick={
                 edit
                 ? () => handleTransactionEdit()
-                : () => handleTransactionRegistration()
+                : () => handleTransactionRegistration(data)
             }>
                 {edit ? "Editar" : "Cadastrar"}
             </Button>

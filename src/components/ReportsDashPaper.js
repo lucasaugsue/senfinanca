@@ -24,7 +24,7 @@ export const ReportsDashPaper = ({
 					borderRadius: '2px 2px 0 0'
 				}}
 			>
-                <Grid container direction='row' style={{padding: 3}} xs={12} spacing={1}>
+                <Grid container direction='row' style={{padding: 3}} spacing={1}>
 					<Grid item xs={12} sm={12} md={6}>
 						<div style={{
 							textAlign: 'left',
@@ -47,7 +47,7 @@ export const ReportsDashPaper = ({
 					background: `${background}E0`
 				}}
 			>
-                <Grid container direction='row' style={{padding: 15}} xs={12} spacing={1}>
+                <Grid container direction='row' style={{padding: 15}} spacing={1}>
 					<Grid item xs={12} sm={12} md={6}></Grid>
 					<Grid item xs={12} sm={12} md={6}>
                     	<div style={{textAlign: 'right', fontSize: 20}}> {bodySubtitle} </div>
